@@ -9,6 +9,7 @@ import pandas as pd
 
 default_args = {
         'owner' : 'dgess',
+        'email' : 'dag@gmail.com',
         'retries' : 1,
         'retry_delay' : timedelta(minutes = 5),
         'email_on_failure' : False,
@@ -17,7 +18,8 @@ default_args = {
         }
 
 # We define the DAG...
-dag = DAG('MongoDB_To_MySQL', default_args = default_args, schedule_interval = '* 10 * * *', catchup = False)
+dag = DAG('MongoDB_To_MySQL', default_args = default_args, schedule_interval = '* 10 * * *', catchup = False,
+         description = 'This DAG will take data from MongoDB, teach a KNN model for a Flask Web App from the data, then import the data to MySQL.')
 
 # We now export the data from MongoDB to a DataFrame...
 def get_mongo_data():
@@ -93,12 +95,10 @@ def ml():
                 
         # If a model was selected, we pickle the model for a Flask application that pulls from this model...
         if model > 0:
-            import pickle
-            out = open('\srv\www\flask_app\predict.py', 'wb')
-            pickle.dump(KNeighborsClassifier(n_neighbors = model).fit(X_train, y_train) , out)
-            out.close()
-            
-            return print('Model succesfully updated...')
+            from sklearn.externals import joblib 
+            joblib.dump(KNeighborsClassifier(n_neighbors = model).fit(X_train, y_train) , '\srv\www\flask_app\predict.pkl')
+                
+            return print('Model succesfully updated and pickled...')
         
         # Else, we return to sending the DataFrame to MuSQL.
         else:
@@ -133,7 +133,7 @@ to_mysql = PythonOperator(
         )
 
 # We now sequence the tasks...
-get_mongo << train_model << to_mysql
+get_mongo >> train_model >> to_mysql
 
 # We call it a DAG.
     
