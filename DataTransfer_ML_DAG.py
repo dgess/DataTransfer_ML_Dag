@@ -40,8 +40,8 @@ def get_mongo_data():
             for key,val in doc.items():
                 if key not in columns:
                     columns.append(key)
-                    values.append(val)
-                    data.append(values)
+                values.append(val)
+            data.append(values)
                     
         # We pass the column names and the column data to a DataFrame...
         return pd.DataFrame(data = data, columns = columns)
