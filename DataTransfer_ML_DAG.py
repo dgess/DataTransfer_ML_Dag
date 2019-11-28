@@ -71,7 +71,7 @@ def ml():
         X = df.drop(columns = ['species', '_id'])
         y = df[['species']]
         
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 23)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.8, random_state = 23)
         
         # The following will train the model up to 10 nearest-neighbors...
         vals = []
@@ -87,7 +87,7 @@ def ml():
         # for demonstrative purposes, we select the first KNN model that satisfies our
         # accuracy measurements...
         model = None
-        for index in range(len(vals)):
+        for index in range(0,len(vals) + 1):
             for key in vals[index]:
                 if vals[index][key] >= 0.95 and vals[index][key] < 0.98:
                     model = key + 1
